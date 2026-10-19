@@ -3,11 +3,47 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/4brhamy/gebeta-alphazero/blob/main/notebook/gebeta_alphazero.ipynb)
 [![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Play-Hugging%20Face%20Space-yellow)](https://huggingface.co/spaces/4brham/gebeta-alphazero)
 
-An AlphaZero-style AI for **Gebeta** (ገበጣ), the Ethiopian mancala game — trained purely by self-play,
-plus a web app to play against it.
+An AlphaZero-style AI for **Gebeta** (ገበጣ), the Ethiopian mancala game. It learns only by playing
+against itself, with no human games or hand-written strategy. A web app lets you play against it.
 
 - **Play it:** https://huggingface.co/spaces/4brham/gebeta-alphazero
-- **Train it:** [`notebook/gebeta_alphazero.ipynb`](notebook/gebeta_alphazero.ipynb) — open in Google Colab with a GPU runtime
+- **Train it:** [`notebook/gebeta_alphazero.ipynb`](notebook/gebeta_alphazero.ipynb). Open it in Google Colab with a GPU runtime.
+
+## About the project
+
+Gebeta is one of the oldest board games in the Horn of Africa. It is played in homes, schools and
+cafés across Ethiopia and Eritrea, often on a carved wooden board or on pits dug in the ground. Like other
+mancala games, it is easy to learn: on each turn you only pick one pit. It is hard to master, because one
+choice can set off a long chain of sowing that changes the whole board.
+
+This project applies the method behind DeepMind's AlphaGo Zero and AlphaZero to Gebeta. The agent starts
+knowing nothing but the rules. Each training round, it plays many games against itself, using a neural
+network and Monte Carlo Tree Search to choose moves. It then trains the network on the results. After a
+short run on a free Colab GPU, it beats simple strategies in nearly every game.
+
+The project has three parts:
+
+| Part | What it is |
+|---|---|
+| **Training notebook** | One Colab notebook with the game engine, the neural network, the search, the self-play training loop, evaluation, and model export. |
+| **Trained model** | `app/gebeta_model.npz` (2 MB, 604,295 weights) from a 60-iteration training run. |
+| **Web app** | A Gradio app on Hugging Face Spaces with a wooden-style board, three difficulty levels, a choice of who moves first, and the AI's own estimate of its win chance. It runs the network with plain numpy, so it needs no PyTorch or GPU. |
+
+## Results
+
+Training ran for 60 iterations (about 45 minutes on a Colab T4 GPU) and produced about 122,000 self-play positions.
+
+| | Before training | After 60 iterations |
+|---|---|---|
+| vs random player (40 games) | 30 wins, 1 draw, 9 losses | 40 wins |
+| vs greedy player (40 games) | not measured | 33 wins, 2 draws, 5 losses |
+
+In a separate test at the app's Medium level (120 searches per move), the final model won all 20 games
+against the random and greedy players, playing both first and second.
+
+**Moving first is a big advantage.** By the end of training, the first player won about 94% of self-play
+games, and the network rates the opening position at +0.91 for the player to move. Some losses to the
+greedy player may come from games where the AI moved second, but the code doesn't record which side lost.
 
 ## Rules used
 
@@ -27,12 +63,13 @@ Variants (e.g. capturing pits that reach 4 seeds) can be switched on in the `RUL
 
 Same recipe as AlphaGo Zero / AlphaZero:
 
-1. **Network** — a residual MLP takes the board and outputs a *policy* (which pit to play) and a *value* (who is winning).
-2. **Search** — Monte Carlo Tree Search (PUCT) uses the network to look ahead; the search's visit counts are a stronger policy than the raw network.
-3. **Self-play** — the agent plays itself; every position is saved with the search policy and the final result.
-4. **Training** — the network learns to predict the search policy and the game result. Repeat.
+1. **Network**: a residual MLP takes the board and outputs a *policy* (which pit to play) and a *value* (who is winning).
+2. **Search**: Monte Carlo Tree Search (PUCT) uses the network to look ahead. The search's visit counts are a stronger policy than the raw network.
+3. **Self-play**: the agent plays itself. Every position is saved with the search policy and the final result.
+4. **Training**: the network learns to predict the search policy and the game result. Repeat.
 
-Self-play runs many games in parallel and batches network calls on the GPU.
+Self-play runs 128 games in parallel and batches network calls on the GPU, so one training iteration
+takes about 30 seconds.
 
 ## Repository layout
 
@@ -41,7 +78,7 @@ notebook/gebeta_alphazero.ipynb   Colab notebook: rules, network, MCTS, self-pla
 notebook/gebeta_alphazero.py      Same code as a plain script (# %% cells)
 app/app.py                        Gradio app (Hugging Face Space)
 app/gebeta_core.py                Game rules + numpy inference + MCTS (no PyTorch needed)
-app/gebeta_model.npz             Trained weights exported by the notebook
+app/gebeta_model.npz              Trained weights exported by the notebook
 ```
 
 ## Run the app locally
@@ -55,4 +92,8 @@ python app.py
 ## Retrain
 
 Open the notebook in Colab, choose a GPU runtime and run all cells. The "Export the model" cell writes
-`gebeta_model.npz`; copy it into `app/`.
+`gebeta_model.npz`; copy it into `app/`. If you change the rules, change them in `app/gebeta_core.py` too.
+
+## License
+
+MIT
