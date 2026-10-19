@@ -22,21 +22,22 @@ LEVELS = {"Easy": 20, "Medium": 120, "Hard": 400}
 
 CSS = """
 .board {background: linear-gradient(160deg,#8a5a2b,#6b4220); border-radius: 28px; padding: 18px;
-        display: grid; grid-template-columns: 90px 1fr 90px; gap: 14px; align-items: center;
+        display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; gap: 14px; align-items: center;
         box-shadow: inset 0 2px 8px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25); max-width: 760px; margin: 0 auto;}
-.rows {display: grid; grid-template-rows: 1fr 1fr; gap: 14px;}
-.row {display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;}
+.rows {display: grid; grid-template-rows: 1fr 1fr; gap: 14px; min-width: 0;}
+.row {display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px;}
 .pit, .store {background: radial-gradient(circle at 40% 35%, #4a2c12, #2e1a09); border-radius: 50%;
         aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        color: #f6e7c8; box-shadow: inset 0 4px 10px rgba(0,0,0,.6); position: relative;}
-.store {border-radius: 44px; aspect-ratio: auto; height: 100%; min-height: 150px;}
+        color: #f6e7c8; box-shadow: inset 0 4px 10px rgba(0,0,0,.6); position: relative;
+        min-width: 0; overflow: hidden;}
+.store {border-radius: 44px; aspect-ratio: auto; height: 100%; min-height: 150px; overflow: visible;}
 .count {font-size: 22px; font-weight: 700; font-family: system-ui, sans-serif;}
 .label {font-size: 11px; opacity: .7; font-family: system-ui, sans-serif;}
 .seeds {display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: 70%; margin-top: 3px;}
 .seed {width: 7px; height: 7px; border-radius: 50%; background: #e9d3a3;}
-.last {outline: 3px solid #ffcf4a; outline-offset: 2px;}
+.last {box-shadow: inset 0 4px 10px rgba(0,0,0,.6), 0 0 0 3px #ffcf4a;}
 .side-label {grid-column: 1 / -1; text-align: center; color: #f6e7c8; font: 600 13px system-ui, sans-serif; opacity: .85;}
-@media (max-width: 600px) { .board {grid-template-columns: 52px 1fr 52px; padding: 10px; gap: 8px;}
+@media (max-width: 600px) { .board {grid-template-columns: 52px minmax(0, 1fr) 52px; padding: 10px; gap: 8px;}
   .count {font-size: 16px;} .seeds {display: none;} .row {gap: 6px;} .rows {gap: 8px;} }
 """
 
