@@ -118,20 +118,44 @@ def human_move(i, game, level):
 
 RULES_MD = """
 ### How to play Gebeta (ገበጣ)
-* Two rows of 6 pits, 4 seeds in each. The bottom row is yours.
-* On your turn, pick one of your pits. Its seeds are sown one per pit, **counter-clockwise**
-  (left to right along your row, then right to left along the AI's row).
-* **Relay:** if your last seed lands in a pit that already had seeds, you pick all of them up and keep sowing.
-* **Capture:** if your turn ends in an empty pit on **your side**, you take the seeds in the pit opposite it.
-* The game ends when the player to move has no seeds. Each player keeps the seeds left on their own row.
-  Most seeds wins.
 
-Gebeta has many regional variants; this is the common two-row version with relay sowing.
-The AI was trained with AlphaZero-style self-play (neural network + Monte Carlo Tree Search).
+**Your only decision each turn is which pit to pick.** Everything after that happens automatically.
+
+**Setup:** 12 pits in two rows of 6, with 4 seeds in each (48 seeds). The **bottom row is yours**, the top row is the AI's.
+Captured seeds go into the stores: the big ovals on each side (yours is on the right).
+
+**Your turn**
+1. **Pick one of your pits** that has seeds in it.
+2. **Sowing:** all its seeds are picked up and dropped one at a time into the next pits, **counter-clockwise**:
+   rightward along your row, then leftward along the AI's row, and around again.
+3. **Relay:** if the last seed lands in a pit that **already had seeds**, all the seeds in that pit are picked up
+   and sowing continues. This can chain many times around the board.
+4. **The turn ends** when the last seed lands in an **empty** pit.
+5. **Capture:** if that empty pit is **on your side** and the pit directly opposite (in the AI's row) has seeds,
+   you take those seeds plus your landing seed into your store.
+
+**Example:** your pit 3 has 4 seeds. One seed each goes into pits 4, 5, 6 and the AI's first pit. If that pit was empty,
+your turn just ends. If it had seeds, you pick them all up and keep sowing.
+
+**End of the game**
+* The game ends when the player whose turn it is has no seeds on their side.
+* Each player then keeps the seeds left on their own row.
+* Whoever has more seeds wins. There are 48 in total, so 25 guarantees the win.
+
+**Tips**
+* One choice can set off a long relay chain that is hard to predict. The AI is strong because it plays out
+  those chains in its head before choosing.
+* Look for moves that end in an empty pit on your side with a full pit opposite.
+* Moving first is a big advantage. Pit 3 is the AI's favorite opening move.
+
+*Gebeta has many regional variants; this is the common two-row version with relay sowing.
+The AI was trained with AlphaZero-style self-play (neural network + Monte Carlo Tree Search).*
 """
 
 with gr.Blocks(css=CSS, title="Gebeta vs AlphaZero") as demo:
-    gr.Markdown("# Gebeta vs AlphaZero\nPlay the Ethiopian mancala game against an AI that taught itself by self-play.")
+    gr.Markdown("# Gebeta vs AlphaZero\nPlay the Ethiopian mancala game against an AI that taught itself by self-play. "
+                "**Just pick one of your pits each turn:** the seeds are sown and captured automatically. "
+                "Full rules are below the board.")
     game_state = gr.State()
     with gr.Row():
         first = gr.Radio(["You", "AI"], value="You", label="Who goes first")
@@ -141,7 +165,7 @@ with gr.Blocks(css=CSS, title="Gebeta vs AlphaZero") as demo:
     with gr.Row():
         pit_btns = [gr.Button(f"Pit {i + 1}") for i in range(PITS)]
     status = gr.Markdown()
-    with gr.Accordion("Rules", open=False):
+    with gr.Accordion("How to play", open=True):
         gr.Markdown(RULES_MD)
 
     outs = [game_state, board, status] + pit_btns
