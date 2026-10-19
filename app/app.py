@@ -16,7 +16,7 @@ try:
 except ImportError:
     pass
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "gebeta_model.json")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "gebeta_model.npz")
 NET = NumpyNet(MODEL_PATH)
 LEVELS = {"Easy": 20, "Medium": 120, "Hard": 400}
 

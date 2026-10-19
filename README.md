@@ -1,5 +1,8 @@
 # Gebeta × AlphaZero
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/4brhamy/gebeta-alphazero/blob/main/notebook/gebeta_alphazero.ipynb)
+[![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Play-Hugging%20Face%20Space-yellow)](https://huggingface.co/spaces/4brham/gebeta-alphazero)
+
 An AlphaZero-style AI for **Gebeta** (ገበጣ), the Ethiopian mancala game — trained purely by self-play,
 plus a web app to play against it.
 
@@ -38,7 +41,7 @@ notebook/gebeta_alphazero.ipynb   Colab notebook: rules, network, MCTS, self-pla
 notebook/gebeta_alphazero.py      Same code as a plain script (# %% cells)
 app/app.py                        Gradio app (Hugging Face Space)
 app/gebeta_core.py                Game rules + numpy inference + MCTS (no PyTorch needed)
-app/gebeta_model.json             Trained weights exported by the notebook
+app/gebeta_model.npz             Trained weights exported by the notebook
 ```
 
 ## Run the app locally
@@ -52,4 +55,4 @@ python app.py
 ## Retrain
 
 Open the notebook in Colab, choose a GPU runtime and run all cells. The "Export the model" cell writes
-`gebeta_model.json`; copy it into `app/`.
+`gebeta_model.npz`; copy it into `app/`.

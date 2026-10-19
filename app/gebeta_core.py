@@ -131,12 +131,17 @@ class NumpyNet:
     """Inference-only copy of GebetaNet from the notebook (residual MLP with LayerNorm)."""
 
     def __init__(self, path):
-        with open(path) as f:
-            data = json.load(f)
-        RULES.update(data["meta"]["rules"])
-        self.meta = data["meta"]
-        self.w = {k: np.asarray(v, dtype=np.float32) for k, v in data["weights"].items()}
-        self.blocks = data["meta"]["blocks"]
+        if path.endswith(".npz"):
+            z = np.load(path)
+            self.meta = json.loads(str(z["__meta__"]))
+            self.w = {k: z[k].astype(np.float32) for k in z.files if k != "__meta__"}
+        else:  # older JSON export
+            with open(path) as f:
+                data = json.load(f)
+            self.meta = data["meta"]
+            self.w = {k: np.asarray(v, dtype=np.float32) for k, v in data["weights"].items()}
+        RULES.update(self.meta["rules"])
+        self.blocks = self.meta["blocks"]
 
     def _lin(self, x, name):
         return x @ self.w[name + ".weight"].T + self.w[name + ".bias"]

@@ -475,20 +475,20 @@ plt.tight_layout(); plt.show()
 
 # %% [markdown]
 # ## 8. Export the model for the web app
-# Writes the weights as JSON so the browser version of the game can run the trained network.
+# Writes the weights and rules to `gebeta_model.npz`, which the app (`app/gebeta_core.py`) loads with
+# numpy only. Download it from the Files panel (or run `files.download(path)`) and put it in `app/`.
 
 # %%
 import json
 
 def export_web(net, path):
-    weights = {k: v.detach().cpu().numpy().round(5).tolist() for k, v in net.state_dict().items()}
+    weights = {k: v.detach().cpu().numpy().astype(np.float32) for k, v in net.state_dict().items()}
     meta = {"rules": RULES, "hidden": cfg.hidden, "blocks": cfg.blocks, "features": FEATURES,
             "iterations": cfg.iterations}
-    with open(path, "w") as f:
-        json.dump({"meta": meta, "weights": weights}, f, separators=(",", ":"))
+    np.savez_compressed(path, __meta__=np.array(json.dumps(meta)), **weights)
     print(path, os.path.getsize(path) // 1024, "KB")
 
-export_web(net, os.path.join(cfg.save_dir, "gebeta_model.json"))
+export_web(net, os.path.join(cfg.save_dir, "gebeta_model.npz"))
 
 # %% [markdown]
 # ## 9. Play against the agent
